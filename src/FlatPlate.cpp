@@ -92,29 +92,33 @@ namespace geolytical
                 myfile << "3 " << idx00 << " " << idx10 << " " << idx11 << std::endl;
             }
         }
-        int idx100 = 0;
-        int idx101 = (nx-1)*nz + 0;
+        int idx010 = 0;
+        int idx011 = (nx-1)*nz + 0;
         int idx110 = 0*nz + (nz-1);
         int idx111 = (nx-1)*nz + (nz-1);
         int idx000 = numPoints - 4;
         int idx001 = numPoints - 1;
-        int idx010 = numPoints - 3;
-        int idx011 = numPoints - 2;
-        //-z
-        myfile << "3 " << idx000 << " " << idx011 << " " << idx001 << std::endl;
-        myfile << "3 " << idx000 << " " << idx010 << " " << idx011 << std::endl;
-        //-y
-        myfile << "3 " << idx000 << " " << idx001 << " " << idx101 << std::endl;
+        int idx100 = numPoints - 3;
+        int idx101 = numPoints - 2;
+        
+        for (int i = 0; i < nx-1; i++)
+        {
+            myfile << "3 " << idx000 << " " << (i)*nz + (0) << " " << (i)*nz + (0) << std::endl;
+            myfile << "3 " << idx100 << " " << (i+1)*nz + (nz-1) << " " << (i)*nz + (nz-1) << std::endl;
+        }
+        myfile << "3 " << idx000 << " " << idx001 << " " << idx011 << std::endl;
+        myfile << "3 " << idx100 << " " << idx111 << " " << idx101 << std::endl;
+        
+        for (int j = 0; j < nz-1; j++)
+        {            
+            myfile << "3 " << idx000 << " " << (0)*nz + (j) << " " << (0)*nz + (j+1) << std::endl;
+            myfile << "3 " << idx001 << " " << (nx-1)*nz + (j+1) << " " << (nx-1)*nz + (j) << std::endl;
+        }
+        myfile << "3 " << idx001 << " " << idx111 << " " << idx101 << std::endl;
+        myfile << "3 " << idx000 << " " << idx110 << " " << idx100 << std::endl;
+        
         myfile << "3 " << idx000 << " " << idx101 << " " << idx100 << std::endl;
-        //y
-        myfile << "3 " << idx011 << " " << idx110 << " " << idx111 << std::endl;
-        myfile << "3 " << idx011 << " " << idx010 << " " << idx110 << std::endl;
-        //-x
-        myfile << "3 " << idx000 << " " << idx100 << " " << idx110 << std::endl;
-        myfile << "3 " << idx000 << " " << idx110 << " " << idx010 << std::endl;
-        //x
-        myfile << "3 " << idx111 << " " << idx101 << " " << idx001 << std::endl;
-        myfile << "3 " << idx111 << " " << idx001 << " " << idx011 << std::endl;
+        myfile << "3 " << idx000 << " " << idx001 << " " << idx101 << std::endl;
         
         myfile << "CELL_DATA " << nFaces << std::endl;
         myfile << "SCALARS Components int" << std::endl;

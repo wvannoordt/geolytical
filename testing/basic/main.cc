@@ -15,9 +15,8 @@ int main(void)
     bounds.ymax = 0.0;
     bounds.zmin = -1.0;
     bounds.zmax = 1.0;
-    geolytical::FlatPlate plate(600, 600, bounds);
+    geolytical::FlatPlate plate(60, 60, bounds);
     plate.Deform(deform);
-    plate.Deform(deform2);
     plate.OutputToVtk("output.vtk");
     return 0;
 }
@@ -27,7 +26,7 @@ void deform(double* x, double* y, double* z)
     double xp = *x;
     double yp = *y;
     double zp = *z;
-    double theta = 12*(bounds.xmax-xp)*(xp-bounds.xmin)*(bounds.zmax-zp)*(zp-bounds.zmin);
+    double theta = 1.2*(bounds.xmax-xp)*(xp-bounds.xmin)*(bounds.zmax-zp)*(zp-bounds.zmin);
     double r = 0.5*xp*xp+0.5*zp*zp;
     double s = sin(theta);
     double c = cos(theta);
