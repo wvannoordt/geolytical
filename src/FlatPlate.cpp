@@ -1,5 +1,6 @@
 #include "GeoTypes.h"
 #include "FlatPlate.h"
+#include "DeformationTypes.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -58,14 +59,6 @@ namespace geolytical
         {
             dealloc = false;
             free(points);
-        }
-    }
-    
-    void FlatPlate::Deform(void (*deformer)(double*,double*,double*))
-    {
-        for (int i = 0; i < numPoints; i++)
-        {
-            deformer(points+3*i, points+3*i+1, points+3*i+2);
         }
     }
     

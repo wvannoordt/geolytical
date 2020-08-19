@@ -1,18 +1,18 @@
-#ifndef FLATPLATE_H
-#define FLATPLATE_H
+#ifndef FLATLINE_H
+#define FLATLINE_H
 #include "AnalyticalGeometry.h"
 #include "DeformationTypes.h"
 namespace geolytical
 {
-    class FlatPlate : public AnalyticalGeometry
+    class FlatLine : public AnalyticalGeometry
     {
         public:
-            FlatPlate(int nx_in, int ny_in, bbox bounds_in);
-            ~FlatPlate(void);
+            FlatLine(int nx_in, bbox bounds_in);
+            ~FlatLine(void);
             void OutputToVtk(std::string filename);
             void CreatePoints(void);
         private:
-            int nx, nz;
+            int nx;
             int nFaces, nSize;
     };
 }
