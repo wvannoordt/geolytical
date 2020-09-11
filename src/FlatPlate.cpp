@@ -81,8 +81,8 @@ namespace geolytical
                 int idx01 = i*nz + (j+1);
                 int idx10 = (i+1)*nz + j;
                 int idx11 = (i+1)*nz + (j+1);
-                myfile << "3 " << idx00 << " " << idx11 << " " << idx01 << std::endl;
-                myfile << "3 " << idx00 << " " << idx10 << " " << idx11 << std::endl;
+                myfile << "3 " << idx11 << " " << idx00 << " " << idx01 << std::endl;
+                myfile << "3 " << idx10 << " " << idx00 << " " << idx11 << std::endl;
             }
         }
         int idx010 = 0;
@@ -96,19 +96,21 @@ namespace geolytical
         
         for (int i = 0; i < nx-1; i++)
         {
-            myfile << "3 " << idx000 << " " << (i)*nz + (0) << " " << (i)*nz + (0) << std::endl;
+            myfile << "3 " << (i)*nz + (0) << " " << (i+1)*nz + (0) << " " << idx000 <<  std::endl;
             myfile << "3 " << idx100 << " " << (i+1)*nz + (nz-1) << " " << (i)*nz + (nz-1) << std::endl;
         }
-        myfile << "3 " << idx000 << " " << idx001 << " " << idx011 << std::endl;
-        myfile << "3 " << idx100 << " " << idx111 << " " << idx101 << std::endl;
+        myfile << "3 " << idx001 << " " << idx000 << " " << idx011 << std::endl;
+        myfile << "3 " << idx111 << " " << idx100 << " " << idx101 << std::endl;
         
         for (int j = 0; j < nz-1; j++)
         {            
-            myfile << "3 " << idx000 << " " << (0)*nz + (j) << " " << (0)*nz + (j+1) << std::endl;
-            myfile << "3 " << idx001 << " " << (nx-1)*nz + (j+1) << " " << (nx-1)*nz + (j) << std::endl;
+            myfile << "3 " << (0)*nz + (j) << " " << idx000 << " " << (0)*nz + (j+1) << std::endl;
+            //myfile << "3 " << idx000 << " " << (0)*nz + (j) << " " << (0)*nz + (j+1) << std::endl;
+            myfile << "3 " << (nx-1)*nz + (j+1) << " " << idx001 << " " <<  (nx-1)*nz + (j) << std::endl;
+            //myfile << "3 " << idx001 << " " << (nx-1)*nz + (j+1) << " " << (nx-1)*nz + (j) << std::endl;
         }
         myfile << "3 " << idx001 << " " << idx111 << " " << idx101 << std::endl;
-        myfile << "3 " << idx000 << " " << idx110 << " " << idx100 << std::endl;
+        myfile << "3 " << idx110 << " " << idx000 << " " << idx100 << std::endl;
         
         myfile << "3 " << idx000 << " " << idx101 << " " << idx100 << std::endl;
         myfile << "3 " << idx000 << " " << idx001 << " " << idx101 << std::endl;
