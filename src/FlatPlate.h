@@ -10,10 +10,12 @@ namespace geolytical
             FlatPlate(int nx_in, int ny_in, bbox bounds_in);
             ~FlatPlate(void);
             void OutputToVtk(std::string filename);
+            void OutputToVtk(std::string filename, bool doScalarXYZ);
             void CreatePoints(void);
         private:
             int nx, nz;
             int nFaces, nSize;
+            int* lookup;
     };
 }
 #endif

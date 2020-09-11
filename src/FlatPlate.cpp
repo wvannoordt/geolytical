@@ -61,9 +61,17 @@ namespace geolytical
             free(points);
         }
     }
-    
     void FlatPlate::OutputToVtk(std::string filename)
     {
+        OutputToVtk(filename, false);
+    }
+    
+    void FlatPlate::OutputToVtk(std::string filename, bool doScalarXYZ)
+    {
+        if (doScalarXYZ)
+        {
+            lookup = (int*)malloc(nFaces*sizeof(int));
+        }
         std::ofstream myfile;
         myfile.open(filename.c_str());
         myfile << "# vtk DataFile Version 3.0" << std::endl;
@@ -119,6 +127,23 @@ namespace geolytical
         myfile << "SCALARS Components int" << std::endl;
         myfile << "LOOKUP_TABLE default" << std::endl;
         for (int i = 0; i < nFaces; i++) myfile << "1" << std::endl;
+        
+        if (doScalarXYZ)
+        {
+            std::cout << "not implemented" << std::endl;
+            abort();
+            //myfile << "CELL_DATA " << nFaces << std::endl;
+            //myfile << "SCALARS x float" << std::endl;
+            //myfile << "LOOKUP_TABLE default" << std::endl;
+            for (int i = 0; i < nFaces; i++)
+            {
+                
+            }
+        }
+        if (doScalarXYZ)
+        {
+            free(lookup);
+        }
         myfile.close();
     }
 }
