@@ -35,7 +35,7 @@ namespace geolytical
         *(points+3*nx +  2) = 0.0;
         //LL
         *(points+3*nx +  3) = bounds.xmin;
-        *(points+3*nx +  4) = bounds.ymin;;
+        *(points+3*nx +  4) = bounds.ymin;
         *(points+3*nx +  5) = 0.0;
     }
     
@@ -58,7 +58,7 @@ namespace geolytical
         myfile << "DATASET POLYDATA" << std::endl;
         myfile << "POINTS " << numPoints << " float" << std::endl;
         for (int i = 0; i < numPoints; i++) myfile << points[3*i] << " " << points[3*i+1] << " " << points[3*i+2] << std::endl;
-        myfile << "POLYGONS " << nFaces << " " << nSize << std::endl;
+        myfile << "LINES " << nFaces << " " << nSize << std::endl;
         for (int i = 0; i < numPoints-1; i++)
         {
             myfile << "2 " << i << " " << i+1 << std::endl;
@@ -67,7 +67,10 @@ namespace geolytical
         myfile << "CELL_DATA " << nFaces << std::endl;
         myfile << "SCALARS Components int" << std::endl;
         myfile << "LOOKUP_TABLE default" << std::endl;
-        for (int i = 0; i < nFaces; i++) myfile << "1" << std::endl;
+        for (int i = 0; i < nx-1; i++) myfile << "1" << std::endl;
+        myfile << "1" << std::endl;
+        myfile << "1" << std::endl;
+        myfile << "1" << std::endl;
         myfile.close();
     }
 }

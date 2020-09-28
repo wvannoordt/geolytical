@@ -14,7 +14,7 @@ namespace geolytical
         nx = nx_in+1;
         nz = nz_in+1;
         numPoints = nx*nz + 4;
-        nFaces = 2*nx*nz+10;
+        nFaces = 2*((nx-1)*(nz-1) + nx + nz + 1);
         nSize = 4*nFaces;
         dealloc = true;
         points = (double*)malloc(numPoints*3*sizeof(double));
