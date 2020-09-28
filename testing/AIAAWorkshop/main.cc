@@ -3,19 +3,28 @@
 #include <cmath>
 bbox bounds;
 double h, Lx, Ly, Lz;
+#define XBL -0.62
+#define XSTART 0
+#define XEND 1
+#define LDEV 0.9
+#define LOUT 0.9
+#define YPLATE 0.22
+#define YMAX 1.16
+#define ZMAX 0.128
+#define NX 100
+#define NZ 40
 
 void deform(double* x, double* y, double* z);
-void deform2(double* x, double* y, double* z);
 int main(void)
 {
     h = 1.0;
-    bounds.xmin = -1.0;
-    bounds.xmax = 1.0;
+    bounds.xmin = XBL-LDEV;
+    bounds.xmax = XEND+LOUT;
     bounds.ymin = -0.1;
     bounds.ymax = 0.0;
-    bounds.zmin = -1.0;
-    bounds.zmax = 1.0;
-    geolytical::FlatPlate plate(60, 60, bounds);
+    bounds.zmin = 0.0;
+    bounds.zmax = ZMAX;
+    geolytical::FlatPlate plate(NX, NZ, bounds);
     plate.Deform(deform);
     plate.OutputToVtk("output.vtk");
     return 0;
@@ -26,24 +35,12 @@ void deform(double* x, double* y, double* z)
     double xp = *x;
     double yp = *y;
     double zp = *z;
-    double theta = 1.2*(bounds.xmax-xp)*(xp-bounds.xmin)*(bounds.zmax-zp)*(zp-bounds.zmin);
-    double r = 0.5*xp*xp+0.5*zp*zp;
-    double s = sin(theta);
-    double c = cos(theta);
-    *y = yp+theta;
-    *x = c*xp+s*zp;
-    *z = -s*xp+c*zp;
-}
-
-void deform2(double* x, double* y, double* z)
-{
-    double xp = *x;
-    double yp = *y;
-    double zp = *z;
-    if (yp>0)
+    if (xp < XSTART && yp > -0.008)
     {
-        *x = xp + yp*sin(yp);
-        *y = yp;
-        *z = zp + yp*cos(yp);
+        *y = YPLATE;
+    }
+    if (xp >= XSTART && yp > -0.008 && xp <= XEND)
+    {
+        *y = YPLATE*(1.0 - 10*xp*xp*xp + 15*xp*xp*xp*xp - 6*xp*xp*xp*xp*xp);
     }
 }
