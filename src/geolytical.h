@@ -3,4 +3,5 @@
 #include "DeformationTypes.h"
 #include "FlatPlate.h"
 #include "FlatLine.h"
+#include "Cylinder.h"
 #endif
