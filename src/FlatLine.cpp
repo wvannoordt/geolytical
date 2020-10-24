@@ -10,6 +10,7 @@ namespace geolytical
 {
     FlatLine::FlatLine(int nx_in, bbox bounds_in)
     {
+        dimension = 2;
         bounds = bounds_in;
         nx = nx_in+1;
         numPoints = nx+2;

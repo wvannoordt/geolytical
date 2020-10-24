@@ -10,6 +10,7 @@ namespace geolytical
 {
     FlatPlate::FlatPlate(int nx_in, int nz_in, bbox bounds_in)
     {
+        dimension = 3;
         bounds = bounds_in;
         nx = nx_in+1;
         nz = nz_in+1;

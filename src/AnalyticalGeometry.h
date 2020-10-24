@@ -10,7 +10,7 @@ namespace geolytical
     class AnalyticalGeometry
     {
         public:
-            AnalyticalGeometry(void){}
+            AnalyticalGeometry(void){dimension = -999;}
             ~AnalyticalGeometry(void){}
             virtual void OutputToVtk(std::string filename){}
             virtual void Deform(Transformation3D deformer)
@@ -42,6 +42,7 @@ namespace geolytical
             double* points;
             bbox bounds;
             bool dealloc;
+            int dimension;
     };
 }
 #endif

@@ -16,7 +16,10 @@ int main(void)
     bounds.zmin = -1.0;
     bounds.zmax = 1.0;
     geolytical::FlatPlate plate(60, 60, bounds);
+    geolytical::FlatPlate plate2(60, 60, bounds2);
     plate.Deform(deform);
+    
+    
     plate.OutputToVtk("output.vtk");
     return 0;
 }

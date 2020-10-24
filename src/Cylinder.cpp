@@ -11,6 +11,7 @@ namespace geolytical
 {
     Cylinder::Cylinder(int nx_in_cyl, int nr_in_rad, int layersonFace_in, bbox bounds_in)
     {
+        dimension = 3;
         bounds = bounds_in;
         nx = nx_in_cyl+1;
         nr = nr_in_rad;
