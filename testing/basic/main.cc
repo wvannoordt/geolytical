@@ -16,7 +16,7 @@ int main(void)
     bounds.zmin = -1.0;
     bounds.zmax = 1.0;
     geolytical::FlatPlate plate(60, 60, bounds);
-    geolytical::FlatPlate plate2(60, 60, bounds2);
+    geolytical::FlatPlate plate2(60, 60, bounds);
     plate.Deform(deform);
     
     
