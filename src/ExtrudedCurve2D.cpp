@@ -22,7 +22,7 @@ namespace geolytical
             {
                 points[iz*3*nr+3*i] = data[2*i];
                 points[iz*3*nr+3*i+1] = data[2*i+1];
-                points[iz*3*nr+3*i+2] = iz*dz;
+                points[iz*3*nr+3*i+2] = zmin+iz*dz;
                 bounds.xmin = (bounds.xmin<(points[3*i+0]))?(bounds.xmin):(points[3*i+0]);
                 bounds.ymin = (bounds.ymin<(points[3*i+1]))?(bounds.ymin):(points[3*i+1]);
                 bounds.xmax = (bounds.xmax>(points[3*i+0]))?(bounds.xmax):(points[3*i+0]);
@@ -77,8 +77,6 @@ namespace geolytical
             myfile << "3 " << (nr*(0) + (low)) << " " << (nr*(0) + (nr/2)) << " " << (nr*(0) + (high)) << std::endl;numFacesWritten++;
             myfile << "3 " << (nr*(nz-1) + (nr/2)) << " " << (nr*(nz-1) + (low)) << " " << (nr*(nz-1) + (high)) << std::endl;numFacesWritten++;
         }
-        std::cout << numFacesWritten << std::endl;
-        std::cout << nFaces << std::endl;
         myfile << "CELL_DATA " << nFaces << std::endl;
         myfile << "SCALARS Components int" << std::endl;
         myfile << "LOOKUP_TABLE default" << std::endl;
