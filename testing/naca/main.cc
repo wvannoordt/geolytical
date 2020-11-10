@@ -28,7 +28,6 @@ int main(void)
         if (dr>drmin || i==0 || i==256)
         {
             lasti = i;
-            std::cout << "add " << i << ", dr = " << dr << ", (x,y)=(" << x1 << ", " << y1 << ")" << std::endl;
             idxes.push_back(i);
         }
     }
@@ -43,11 +42,11 @@ int main(void)
     std::cout << "Reduced " << 512-idxes.size() << " points" << std::endl;
     geolytical::ExtrudedCurve2D foil3D(nz, zmin, zmax, data, 512);
     geolytical::ExtrudedCurve2D foil3DLite(nz, zmin, zmax, newPoints, idxes.size());
-	geolytical::Curve2D foil2D(data, 512);
-	foil2D.OutputToVtk("output2D.vtk");
+    geolytical::Curve2D foil2D(data, 512);
+    foil2D.OutputToVtk("output2D.vtk");
     foil3D.OutputToVtk("output3D.vtk");
     foil3DLite.OutputToVtk("output3DLite.vtk");
     
     delete[] newPoints;
-	return 1;
+    return 0;
 }
