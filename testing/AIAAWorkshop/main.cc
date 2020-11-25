@@ -24,8 +24,14 @@ int main(void)
     bounds.ymax = 0.0;
     bounds.zmin = 0.0;
     bounds.zmax = ZMAX;
-    geolytical::FlatPlate plate(NX, NZ, bounds);
-    plate.Deform(deform);
+    bounds.xmin = 0;
+    bounds.xmax = 10;
+    bounds.ymin = -1;
+    bounds.ymax = 0.0;
+    bounds.zmin = 0.0;
+    bounds.zmax = 1;
+    geolytical::FlatPlate plate(100, 24, bounds);
+    //plate.Deform(deform);
     plate.OutputToVtk("output.vtk");
     return 0;
 }

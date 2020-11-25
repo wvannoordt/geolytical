@@ -176,17 +176,25 @@ namespace geolytical
                     GetLineArray((Xthenz==0), (upperLower==1), level);
                     //printarr("high", upperLineArray, nUpper);
                     //printarr("low", lowerLineArray, nLower);
-                    for (int i = 0; i < nUpper-1; i++)
+                    if ((nUpper == 2) && (nLower == 2))
                     {
-                        int lowerTarget = (int)round(nLower*((double)i/nUpper));
-                        if (i==0) lowerTarget = 0;
-                        if (i==nUpper-2) lowerTarget = nLower-1;                    
-                        AddFace(upperLineArray[i+1], upperLineArray[i], lowerLineArray[lowerTarget], (upperLower==1)==(Xthenz==1));
-                        minPointIdArray[lowerTarget] = i+1;
+                        AddFace(upperLineArray[1], upperLineArray[0], lowerLineArray[0], (upperLower==1)==(Xthenz==1));
+                        AddFace(upperLineArray[1], lowerLineArray[0], lowerLineArray[1], (upperLower==1)==(Xthenz==1));
                     }
-                    for (int i = 0; i < nLower-1; i++)
+                    else
                     {
-                        AddFace(lowerLineArray[i], lowerLineArray[i+1], upperLineArray[minPointIdArray[i]], (upperLower==1)==(Xthenz==1));
+                        for (int i = 0; i < nUpper-1; i++)
+                        {
+                            int lowerTarget = (int)round(nLower*((double)i/nUpper));
+                            if (i==0) lowerTarget = 0;
+                            if (i==nUpper-2) lowerTarget = nLower-1;                    
+                            AddFace(upperLineArray[i+1], upperLineArray[i], lowerLineArray[lowerTarget], (upperLower==1)==(Xthenz==1));
+                            minPointIdArray[lowerTarget] = i+1;
+                        }
+                        for (int i = 0; i < nLower-1; i++)
+                        {
+                            AddFace(lowerLineArray[i], lowerLineArray[i+1], upperLineArray[minPointIdArray[i]], (upperLower==1)==(Xthenz==1));
+                        }
                     }
                 }
             }

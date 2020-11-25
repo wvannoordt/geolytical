@@ -28,13 +28,23 @@ namespace geolytical
     class AnalyticalGeometry
     {
         public:
-            AnalyticalGeometry(void){dealloc = false;dimension = -999;numPoints=-1;numFaces=-1;fidx=0;pidx=0;}
+            AnalyticalGeometry(void)
+            {
+                dealloc = false;
+                dimension = -999;
+                numPoints=-1;
+                numFaces=-1;
+                fidx=0;
+                pidx=0;
+                doComponentId=true;
+            }
             ~AnalyticalGeometry(void)
             {
                 if (dealloc)
                 {
                     free(points);
                     free(faces);
+                    free(compID);
                 }
             }
             virtual void Allocate(void)
@@ -47,6 +57,8 @@ namespace geolytical
                 if (dimension==2) {faces = (int*)malloc(2*numFaces*sizeof(double));}
                 else if (dimension==3) {faces = (int*)malloc(3*numFaces*sizeof(double));}
                 else {std::cout << "dimension is neither 2 nor 3!" << std::endl; abort();}
+                compID = (int*)malloc(numFaces*sizeof(int));
+                for (int i = 0; i < numFaces; i++) compID[i] = 1;
             }
             virtual void AddPoint(double x, double y)
             {
@@ -155,6 +167,13 @@ namespace geolytical
                     }
                     myfile << std::endl;
                 }
+                if (doComponentId)
+                {
+                    myfile << "CELL_DATA " << numFaces << std::endl;
+                    myfile << "SCALARS Components int" << std::endl;
+                    myfile << "LOOKUP_TABLE default" << std::endl;
+                    for (int i = 0; i < numFaces; i++) myfile << compID[i] << std::endl;
+                }
                 myfile.close();
             }
             virtual void Deform(Transformation3D deformer)
@@ -187,9 +206,11 @@ namespace geolytical
             double* points;
             int numFaces;
             int* faces;
+            int* compID;
             bbox bounds;
             bool dealloc;
             int dimension;
+            bool doComponentId;
             size_t fidx, pidx;
     };
 }
