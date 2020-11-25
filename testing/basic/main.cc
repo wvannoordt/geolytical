@@ -11,7 +11,7 @@ int main(void)
     h = 1.0;
     bounds.xmin = -1.0;
     bounds.xmax = 1.0;
-    bounds.ymin = -0.1;
+    bounds.ymin = -1.0;
     bounds.ymax = 0.0;
     bounds.zmin = -1.0;
     bounds.zmax = 1.0;

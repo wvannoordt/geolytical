@@ -4,6 +4,15 @@ ifndef OPTLEVEL
 OPTLEVEL := 0
 endif
 
+ifndef TESTCLEAN
+TESTCLEAN := 0
+endif
+
+TESTCLEANTARGET :=
+ifeq (${TESTCLEAN}, 1)
+TESTCLEANTARGET := clean
+endif
+
 BASEIDIR  := $(shell pwd)
 SRC_DIR   := ${BASEIDIR}/src
 LIB_DIR   := ${BASEIDIR}/lib
@@ -24,6 +33,9 @@ TARGET := ${LIB_DIR}/lib${LIB_NAME}.a
 ifndef CC_HOST
 CC_HOST := $(shell which g++)
 endif
+
+COMPILE_TIME_OPT := 
+COMPILE_TIME_OPT += -DBOUNDS_CHECK=0
 
 HOST_FLAGS := -O${OPTLEVEL} -Wno-unknown-pragmas -g -fPIC -fpermissive -std=c++11
 
@@ -48,16 +60,17 @@ setup:
 		ln -s $${hdr} -t ${HDR_DIR};\
 	done
 
-test: final
+test: ${TESTCLEANTARGET} final
 	@for fldr in testing/* ; do \
+				echo $${fldr}; \
                 ${MAKE} -C $${fldr} -f makefile -s test || exit 1; \
         done
 	@echo "${LIB_NAME} passed all tests."
 
 clean:
-	for fldr in testing/* ; do \
-	            ${MAKE} -C $${fldr} -f makefile clean ; \
-	    done
 	-rm -r ${LIB_DIR}
 	-rm -r ${OBJ_DIR}
 	-rm -r ${HDR_DIR}
+	for fldr in testing/* ; do \
+	            ${MAKE} -C $${fldr} -f makefile clean ; \
+	    done

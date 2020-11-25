@@ -2,6 +2,7 @@
 #include "FlatPlate.h"
 #include "DeformationTypes.h"
 #include <string>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
@@ -12,139 +13,249 @@ namespace geolytical
     {
         dimension = 3;
         bounds = bounds_in;
-        nx = nx_in+1;
-        nz = nz_in+1;
-        numPoints = nx*nz + 4;
-        nFaces = 2*((nx-1)*(nz-1) + nx + nz + 1);
-        nSize = 4*nFaces;
-        dealloc = true;
-        points = (double*)malloc(numPoints*3*sizeof(double));
+        deleteLevels = false;
+        nx = nx_in + 1;
+        nz = nz_in + 1;
+        numLevels = 0;
+        CountPoints();
+        CountFaces();
+        Allocate();
         CreatePoints();
+        CreateFaces();
+    }
+    
+    void FlatPlate::CountPoints(void)
+    {
+        int numLevelsx, numLevelsz;
+        numLevelsx = 0;
+        numLevelsz = 0;
+        int numx = nx;
+        int numz = nz;
+        while (numx>1)
+        {
+            numLevelsx++;
+            numx = 1+((numx-1)/2);
+        }
+        while (numz>1)
+        {
+            numLevelsz++;
+            numz = 1+((numz-1)/2);
+        }
+        numLevels = GEO_MAX(numLevelsx, numLevelsz);
+        numx = nx;
+        numz = nz;
+        levelx = new int[numLevels];
+        levelz = new int[numLevels];
+        numPointsInLayer = new int[numLevels];
+        upperLineArray = new int[GEO_MAX(nx,nz)];
+        lowerLineArray = new int[GEO_MAX(nx,nz)];
+        minPointIdArray = new int[GEO_MAX(nx,nz)];
+        levelPtStart = new int[numLevels];
+        deleteLevels = true;
+        for (int i = numLevels-1; i >= 0; i--)
+        {
+            levelx[i] = GEO_MAX(2,numx);
+            levelz[i] = GEO_MAX(2,numz);
+            numx = 1+((numx-1)/2);
+            numz = 1+((numz-1)/2);
+        }
+        int totalPoints = 0;
+        levelPtStart[0] = 0;
+        for (int i = 0; i < numLevels; i++)
+        {
+            int layerTotalPoints = (2*levelx[i] + 2*levelz[i] - 4);
+            if (i == (numLevels-1))
+            {
+                layerTotalPoints = levelx[i]*levelz[i];
+            }
+            numPointsInLayer[i] = layerTotalPoints;
+            totalPoints += layerTotalPoints;
+            if (i>0)
+            {
+                levelPtStart[i] = levelPtStart[i-1] + numPointsInLayer[i-1];
+            }
+        }
+        numPoints = totalPoints;
+    }
+    
+    void FlatPlate::CountFaces(void)
+    {
+        int facesOnBottom = 2;
+        int facesOnTop = 2*(nx-1)*(nz-1);
+        int facesZ = 0;
+        int facesX = 0;
+        for (int i = 1; i < numLevels; i++)
+        {
+            facesZ += (levelz[i] + levelz[i-1] - 2);
+            facesX += (levelx[i] + levelx[i-1] - 2);
+        }
+        numFaces = facesOnBottom + facesOnTop + 2*(facesZ + facesX);
+    }
+    
+    void FlatPlate::GetLineArray(bool isX, bool upperFace, int level)
+    {
+        int startIdxLow = levelPtStart[level];
+        int startIdxHigh = levelPtStart[level+1];
+        int offset = 0;
+        if (isX)
+        {
+            offset = (upperFace?levelx[level]:0);
+            nLower = levelx[level];
+            for (int i = 0; i < nLower; i++) lowerLineArray[i] = startIdxLow + offset + i;
+            offset = (upperFace?levelx[level+1]:0);
+            nUpper = levelx[level+1];
+            for (int i = 0; i < nUpper; i++) upperLineArray[i] = startIdxHigh + offset + i;
+        }
+        else
+        {
+            nLower = levelz[level];
+            nUpper = levelz[level+1];
+            offset = 2*levelx[level+1] - 1 + (upperFace?(levelz[level+1]-2):(0));
+            for (int i = 1; i < nUpper-1; i++)
+            {
+                upperLineArray[i] = startIdxHigh + offset + i;
+            }
+            offset = 2*levelx[level] - 1 + (upperFace?(levelz[level]-2):(0));
+            for (int i = 1; i < nLower-1; i++)
+            {
+                lowerLineArray[i] = startIdxLow + offset + i;
+            }
+            lowerLineArray[0] = startIdxLow  + (upperFace?(levelx[level]-1):0);
+            upperLineArray[0] = startIdxHigh + (upperFace?(levelx[level+1]-1):0);
+            lowerLineArray[nLower-1] = startIdxLow  + (upperFace?(2*levelx[level]-1):levelx[level]);
+            upperLineArray[nUpper-1] = startIdxHigh + (upperFace?(2*levelx[level+1]-1):levelx[level+1]);
+        }
+        
+        if (level == numLevels-2)
+        {
+            int offsetTop = 0;
+            int pitch = isX?1:nx;
+            if (upperFace)
+            {
+                if (isX)
+                {
+                    offsetTop = (nz-1)*nx;
+                }
+                else
+                {
+                    offsetTop = nx-1;
+                }
+            }
+            int startIdx = startIdxHigh + offsetTop;
+            for (int i = 0; i < nUpper; i++)
+            {
+                upperLineArray[i] = startIdx+i*pitch;
+            }
+        }
+    }
+    
+    void printarr(std::string m, int* a, int n)
+    {
+        std::cout << m;
+        for (int p = 0; p < n; p++)
+        {
+            std::cout << " " << a[p];
+        }
+        std::cout << std::endl;
+    }
+    
+    void FlatPlate::CreateFaces(void)
+    {
+        int n = 0;
+        AddFace(0, 1, 2);
+        AddFace(2, 1, 3);
+        
+        for (int upperLower = 0; upperLower < 2; upperLower++)
+        {
+            std::string ulstring = ((upperLower==1)?"upper":"lower");
+            for (int Xthenz = 0; Xthenz < 2; Xthenz++)
+            {
+                std::string dstring = ((Xthenz==1)?"z":"x");
+                for (int level = 0; level < numLevels-1; level++)
+                {
+                    GetLineArray((Xthenz==0), (upperLower==1), level);
+                    //printarr("high", upperLineArray, nUpper);
+                    //printarr("low", lowerLineArray, nLower);
+                    for (int i = 0; i < nUpper-1; i++)
+                    {
+                        int lowerTarget = (int)round(nLower*((double)i/nUpper));
+                        if (i==0) lowerTarget = 0;
+                        if (i==nUpper-2) lowerTarget = nLower-1;                    
+                        AddFace(upperLineArray[i+1], upperLineArray[i], lowerLineArray[lowerTarget], (upperLower==1)==(Xthenz==1));
+                        minPointIdArray[lowerTarget] = i+1;
+                    }
+                    for (int i = 0; i < nLower-1; i++)
+                    {
+                        AddFace(lowerLineArray[i], lowerLineArray[i+1], upperLineArray[minPointIdArray[i]], (upperLower==1)==(Xthenz==1));
+                    }
+                }
+            }
+        }
+        for (int iz = 0; iz < nz-1; iz++)
+        {
+            for (int ix = 0; ix < nx-1; ix++)
+            {
+                int p1,p2,p3,p4;
+                p1 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+0);
+                p2 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+1);
+                p3 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+0);
+                p4 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+1);
+                AddFace(p2, p1, p3);
+                AddFace(p4, p2, p3);
+            }
+        }
     }
     
     void FlatPlate::CreatePoints(void)
     {
-        double dx = (bounds.xmax-bounds.xmin)/(nx-1);
-        double dy = (bounds.zmax-bounds.zmin)/(nz-1);
-        for (int i = 0; i < nx; i++)
+        int numWritten = 0;
+        double dy = (bounds.ymax - bounds.ymin)/(numLevels-1);
+        for (int i = 0; i < numLevels-1; i++)
         {
-            for (int j = 0; j < nz; j++)
+            int nxHere = levelx[i];
+            int nzHere = levelz[i];
+            double dx = (bounds.xmax - bounds.xmin) / (nxHere - 1);
+            double dz = (bounds.zmax - bounds.zmin) / (nzHere - 1);
+            for (int faceIdx = 0; faceIdx < 2; faceIdx++)
             {
-                int idx = i*nz + j;
-                *(points+3*idx + 0) = bounds.xmin+i*dx;
-                *(points+3*idx + 2) = bounds.zmin+j*dy;
-                *(points+3*idx + 1) = bounds.ymax;
+                for (int ix = 0; ix < nxHere; ix++)
+                {
+                    AddPoint(bounds.xmin + ix*dx, bounds.ymin+i*dy, faceIdx*bounds.zmax + (1-faceIdx)*bounds.zmin);
+                    numWritten++;
+                }
+            }
+            for (int faceIdx = 0; faceIdx < 2; faceIdx++)
+            {
+                for (int iz = 1; iz < nzHere-1; iz++)
+                {
+                    AddPoint(faceIdx*bounds.xmax + (1-faceIdx)*bounds.xmin, bounds.ymin+i*dy, bounds.zmin + iz*dz);
+                    numWritten++;
+                }
             }
         }
-        //000
-        *(points+3*nx*nz +  0) = bounds.xmin;
-        *(points+3*nx*nz +  2) = bounds.zmin;
-        *(points+3*nx*nz +  1) = bounds.ymin;
-        //010
-        *(points+3*nx*nz +  3) = bounds.xmin;
-        *(points+3*nx*nz +  5) = bounds.zmax;
-        *(points+3*nx*nz +  4) = bounds.ymin;
-        //011
-        *(points+3*nx*nz +  6) = bounds.xmax;
-        *(points+3*nx*nz +  8) = bounds.zmax;
-        *(points+3*nx*nz +  7) = bounds.ymin;
-        //001
-        *(points+3*nx*nz +  9) = bounds.xmax;
-        *(points+3*nx*nz + 11) = bounds.zmin;
-        *(points+3*nx*nz + 10) = bounds.ymin;
+        for (int iz = 0; iz < nz; iz++)
+        {
+            double dz = (bounds.zmax - bounds.zmin)/(nz-1);
+            for (int ix = 0; ix < nx; ix++)
+            {
+                double dx = (bounds.xmax - bounds.xmin)/(nx-1);
+                AddPoint(bounds.xmin + ix*dx, bounds.ymax, bounds.zmin + iz*dz);
+            }
+        }
     }
     
     FlatPlate::~FlatPlate(void)
     {
-        if (dealloc)
+        if (deleteLevels)
         {
-            dealloc = false;
-            free(points);
+            deleteLevels = false;
+            delete [] levelx;
+            delete [] levelz;
+            delete [] numPointsInLayer;
+            delete [] upperLineArray;
+            delete [] lowerLineArray;
+            delete [] minPointIdArray;
+            delete [] levelPtStart;
         }
-    }
-    void FlatPlate::OutputToVtk(std::string filename)
-    {
-        OutputToVtk(filename, false);
-    }
-    
-    void FlatPlate::OutputToVtk(std::string filename, bool doScalarXYZ)
-    {
-        if (doScalarXYZ)
-        {
-            lookup = (int*)malloc(nFaces*sizeof(int));
-        }
-        std::ofstream myfile;
-        myfile.open(filename.c_str());
-        myfile << "# vtk DataFile Version 3.0" << std::endl;
-        myfile << "vtk output" << std::endl;
-        myfile << "ASCII" << std::endl;
-        myfile << "DATASET POLYDATA" << std::endl;
-        myfile << "POINTS " << numPoints << " float" << std::endl;
-        for (int i = 0; i < numPoints; i++) myfile << points[3*i] << " " << points[3*i+1] << " " << points[3*i+2] << std::endl;
-        myfile << "POLYGONS " << nFaces << " " << nSize << std::endl;
-        for (int i = 0; i < nx-1; i++)
-        {
-            for (int j = 0; j < nz-1; j++)
-            {
-                int idx00 = i*nz + j;
-                int idx01 = i*nz + (j+1);
-                int idx10 = (i+1)*nz + j;
-                int idx11 = (i+1)*nz + (j+1);
-                myfile << "3 " << idx11 << " " << idx00 << " " << idx01 << std::endl;
-                myfile << "3 " << idx10 << " " << idx00 << " " << idx11 << std::endl;
-            }
-        }
-        int idx010 = 0;
-        int idx011 = (nx-1)*nz + 0;
-        int idx110 = 0*nz + (nz-1);
-        int idx111 = (nx-1)*nz + (nz-1);
-        int idx000 = numPoints - 4;
-        int idx001 = numPoints - 1;
-        int idx100 = numPoints - 3;
-        int idx101 = numPoints - 2;
-        
-        for (int i = 0; i < nx-1; i++)
-        {
-            myfile << "3 " << (i)*nz + (0) << " " << (i+1)*nz + (0) << " " << idx000 <<  std::endl;
-            myfile << "3 " << idx100 << " " << (i+1)*nz + (nz-1) << " " << (i)*nz + (nz-1) << std::endl;
-        }
-        myfile << "3 " << idx001 << " " << idx000 << " " << idx011 << std::endl;
-        myfile << "3 " << idx111 << " " << idx100 << " " << idx101 << std::endl;
-        
-        for (int j = 0; j < nz-1; j++)
-        {            
-            myfile << "3 " << (0)*nz + (j) << " " << idx000 << " " << (0)*nz + (j+1) << std::endl;
-            //myfile << "3 " << idx000 << " " << (0)*nz + (j) << " " << (0)*nz + (j+1) << std::endl;
-            myfile << "3 " << (nx-1)*nz + (j+1) << " " << idx001 << " " <<  (nx-1)*nz + (j) << std::endl;
-            //myfile << "3 " << idx001 << " " << (nx-1)*nz + (j+1) << " " << (nx-1)*nz + (j) << std::endl;
-        }
-        myfile << "3 " << idx001 << " " << idx111 << " " << idx101 << std::endl;
-        myfile << "3 " << idx110 << " " << idx000 << " " << idx100 << std::endl;
-        
-        myfile << "3 " << idx000 << " " << idx101 << " " << idx100 << std::endl;
-        myfile << "3 " << idx000 << " " << idx001 << " " << idx101 << std::endl;
-        
-        myfile << "CELL_DATA " << nFaces << std::endl;
-        myfile << "SCALARS Components int" << std::endl;
-        myfile << "LOOKUP_TABLE default" << std::endl;
-        for (int i = 0; i < nFaces; i++) myfile << "1" << std::endl;
-        
-        if (doScalarXYZ)
-        {
-            std::cout << "not implemented" << std::endl;
-            abort();
-            //myfile << "CELL_DATA " << nFaces << std::endl;
-            //myfile << "SCALARS x float" << std::endl;
-            //myfile << "LOOKUP_TABLE default" << std::endl;
-            for (int i = 0; i < nFaces; i++)
-            {
-                
-            }
-        }
-        if (doScalarXYZ)
-        {
-            free(lookup);
-        }
-        myfile.close();
     }
 }

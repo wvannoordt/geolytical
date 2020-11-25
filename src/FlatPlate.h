@@ -9,13 +9,24 @@ namespace geolytical
         public:
             FlatPlate(int nx_in, int ny_in, bbox bounds_in);
             ~FlatPlate(void);
-            void OutputToVtk(std::string filename);
-            void OutputToVtk(std::string filename, bool doScalarXYZ);
+            void CountPoints(void);
+            void CountFaces(void);
             void CreatePoints(void);
+            void CreateFaces(void);
+            void GetLineArray(bool isX, bool upperFace, int level);
         private:
             int nx, nz;
-            int nFaces, nSize;
-            int* lookup;
+            int* levelx;
+            int* levelz;
+            int* levelPtStart;
+            int* numPointsInLayer;
+            int* minPointIdArray;
+            int numLevels;
+            int* upperLineArray;
+            int nLower;
+            int* lowerLineArray;
+            int nUpper;
+            bool deleteLevels;
     };
 }
 #endif
