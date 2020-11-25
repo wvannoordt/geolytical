@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 #ifndef BOUNDS_CHECK
 #define BOUNDS_CHECK 0
 #endif
