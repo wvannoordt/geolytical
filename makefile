@@ -8,6 +8,10 @@ ifndef TESTCLEAN
 TESTCLEAN := 0
 endif
 
+ifndef TESTS
+TESTS = $(wildcard testing/*)
+endif
+
 TESTCLEANTARGET :=
 ifeq (${TESTCLEAN}, 1)
 TESTCLEANTARGET := clean
@@ -35,7 +39,7 @@ CC_HOST := $(shell which g++)
 endif
 
 COMPILE_TIME_OPT := 
-COMPILE_TIME_OPT += -DBOUNDS_CHECK=0
+COMPILE_TIME_OPT += -DBOUNDS_CHECK=1
 
 HOST_FLAGS := -O${OPTLEVEL} -Wno-unknown-pragmas -g -fPIC -fpermissive -std=c++11
 
@@ -61,7 +65,7 @@ setup:
 	done
 
 test: ${TESTCLEANTARGET} final
-	@for fldr in testing/* ; do \
+	@for fldr in  ${TESTS}; do \
 				echo $${fldr}; \
                 ${MAKE} -C $${fldr} -f makefile -s test || exit 1; \
         done

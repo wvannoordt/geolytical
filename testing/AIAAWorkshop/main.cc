@@ -24,14 +24,11 @@ int main(void)
     bounds.ymax = 0.0;
     bounds.zmin = 0.0;
     bounds.zmax = ZMAX;
-    bounds.xmin = 0;
-    bounds.xmax = 10;
-    bounds.ymin = -1;
-    bounds.ymax = 0.0;
-    bounds.zmin = 0.0;
-    bounds.zmax = 1;
-    geolytical::FlatPlate plate(100, 24, bounds);
-    //plate.Deform(deform);
+    geolytical::FlatPlate plate(512, 256, bounds);
+    plate.AddDoubleScalar("x", [](double x, double y, double z) {return x;});
+    plate.AddDoubleScalar("y", [](double x, double y, double z) {return y;});
+    plate.AddDoubleScalar("z", [](double x, double y, double z) {return z;});
+    plate.Deform(deform);
     plate.OutputToVtk("output.vtk");
     return 0;
 }

@@ -1,3 +1,4 @@
 # Geolytical
-This is a quick-and-dirty tool for making analytical geometries.
-![A preliminary geometry](https://i.imgur.com/re4iyEx.png)
+A Library for generating data-annotated triangulations for computational physics simulations.
+
+![This thing really got out of hand...](https://imgur.com/tsBA49p)
