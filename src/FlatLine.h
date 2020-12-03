@@ -9,11 +9,9 @@ namespace geolytical
         public:
             FlatLine(int nx_in, bbox bounds_in);
             ~FlatLine(void);
-            void OutputToVtk(std::string filename);
             void CreatePoints(void);
         private:
             int nx;
-            int nFaces, nSize;
     };
 }
 #endif
