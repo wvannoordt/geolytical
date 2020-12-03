@@ -9,7 +9,6 @@ namespace geolytical
         numFaces=-1;
         fidx=0;
         pidx=0;
-        doComponentId=false;
         hasAnyScalars = false;
     }
     AnalyticalGeometry::~AnalyticalGeometry(void)
@@ -251,7 +250,7 @@ namespace geolytical
     {
         FULLP;
         FULLF;
-        if (doComponentId) AddIntegerScalar("Components", 1);
+        if (!HasScalar("Components")) AddIntegerScalar("Components", 1);
         std::ofstream myfile;
         myfile.open(filename.c_str());
         myfile << "# vtk DataFile Version 3.0" << std::endl;

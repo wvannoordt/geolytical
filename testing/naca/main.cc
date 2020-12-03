@@ -43,8 +43,20 @@ int main(void)
     geolytical::ExtrudedCurve2D foil3D(nz, zmin, zmax, data, 512);
     geolytical::ExtrudedCurve2D foil3DLite(nz, zmin, zmax, newPoints, idxes.size());
     geolytical::Curve2D foil2D(data, 512);
-    foil3D.AddIntegerScalar("Components", [](double x, double y, double z){return (x<0.5)?2:1;});
-    foil2D.AddIntegerScalar("Components", [](double x, double y, double z){return (x<0.5)?2:1;});
+    foil3D.AddIntegerScalar("Components", [](double x, double y, double z){
+    if (z < 0) return 1;
+    if (z > 0.2) return 1;
+    if (x < 0.1 && y > 0) return 2;
+    if (x < 0.005) return 2;
+    return 1;
+    });
+    foil2D.AddIntegerScalar("Components", [](double x, double y, double z){
+    if (z < 0) return 1;
+    if (z > 0.2) return 1;
+    if (x < 0.1 && y > 0) return 2;
+    if (x < 0.005) return 2;
+    return 1;
+    });
     foil2D.OutputToVtk("output2D.vtk");
     foil3D.OutputToVtk("output3D.vtk");
     foil3DLite.OutputToVtk("output3DLite.vtk");
