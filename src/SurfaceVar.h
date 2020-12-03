@@ -18,6 +18,7 @@ namespace geolytical
         public:
             SurfaceVar(std::string name_in, AnalyticalGeometry* domain_in, void* array_in, size_t num_in, SurfaceVarType::SurfaceVarType type_in);
             ~SurfaceVar(void);
+            SurfaceVarType::SurfaceVarType GetType(void) {return type;}
         private:
             void Build(std::string name_in, AnalyticalGeometry* domain_in, void* array_in, size_t num_in, SurfaceVarType::SurfaceVarType type_in);
             std::string name;

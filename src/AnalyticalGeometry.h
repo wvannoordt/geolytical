@@ -45,6 +45,7 @@ namespace geolytical
             virtual void ErrIfOBFace(void);
             virtual void ErrIfNotAllPoint(void);
             virtual void ErrIfNotAllFace(void);
+            void RemoveScalar(std::string name);
             void GetCentroid(int faceIdx, double* xout, double* yout, double* zout);
             virtual SurfaceVar& AddDoubleScalar(std::string name, double value);
             virtual SurfaceVar& AddDoubleScalar(std::string name, double(*func)(int));

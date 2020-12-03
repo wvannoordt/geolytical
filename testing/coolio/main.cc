@@ -16,6 +16,7 @@ double divDelta(double x, double y, double z)
     double div = 3.0 + exp(-0.04*xprev*xprev)*cos(xprev) + sin(xprev)*exp(-0.04*xprev*xprev)*(-0.08*xprev) - exp(-0.04*xprev*xprev)*sin(xprev) + cos(xprev)*exp(-0.04*xprev*xprev)*(-0.08*xprev);
     return div*div*cos(3*z)*sin(2*y);
 }
+
 int main(void)
 {
     bbox bounds;

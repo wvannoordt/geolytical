@@ -9,7 +9,7 @@ namespace geolytical
         numFaces=-1;
         fidx=0;
         pidx=0;
-        doComponentId=true;
+        doComponentId=false;
         hasAnyScalars = false;
     }
     AnalyticalGeometry::~AnalyticalGeometry(void)
@@ -149,6 +149,28 @@ namespace geolytical
         *yout = (1.0/dimension) * (y1+y2+y3);
         *zout = (1.0/dimension) * (z1+z2+z3);
     }
+    
+    void AnalyticalGeometry::RemoveScalar(std::string name)
+    {
+        if (HasScalar(name))
+        {
+            SurfaceVar* obj = variableObjects[name];
+            if (obj->GetType() == SurfaceVarType::Integer)
+            {
+                free(integerScalars[name]);
+                integerScalars.erase(name);
+                std::cout << name << std::endl;
+            }
+            else
+            {
+                free(doubleScalars[name]);
+                doubleScalars.erase(name);
+            }
+            delete variableObjects[name];
+            variableObjects.erase(name);
+        }
+    }
+    
     SurfaceVar& AnalyticalGeometry::AddDoubleScalar(std::string name, double value)
     {
         if (HasScalar(name)) {std::cout << "Attempt to add duplicate scalar \"" << name << "\"!" << std::endl; abort();}
@@ -241,7 +263,7 @@ namespace geolytical
         {
             myfile << points[3*i] << " " << points[3*i+1] << " " << points[3*i+2] << std::endl;
         }
-        myfile << "POLYGONS " << numFaces << " " << (1+dimension)*numFaces << std::endl;
+        myfile << ((this->dimension==3)?("POLYGONS "):("LINES ")) << numFaces << " " << (1+dimension)*numFaces << std::endl;
         for (int i = 0; i < numFaces; i++)
         {
             myfile << dimension;

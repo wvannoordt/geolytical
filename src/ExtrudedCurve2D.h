@@ -9,10 +9,10 @@ namespace geolytical
         public:
             ExtrudedCurve2D(int nz_in, double zmin, double zmax, double* data, int num);
             ~ExtrudedCurve2D(void);
-            void OutputToVtk(std::string filename);
+            void CreateFaces(void);
         private:
             int nz, nr;
-            int nFaces, nSize, numFaceEnd;
+            int numFaceEnd;
     };
 }
 #endif

@@ -9,10 +9,7 @@ namespace geolytical
         public:
             Curve2D(double* data, int num);
             ~Curve2D(void);
-            void OutputToVtk(std::string filename);
-            void CreatePoints(void);
         private:
-            int nFaces, nSize;
     };
 }
 #endif
