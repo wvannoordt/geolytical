@@ -204,9 +204,9 @@ namespace geolytical
                     int start2 = GetLayerStart(layer+1);
                     for (int i = 0; i < numberOfRadialPointsAtLevel[layer]; i++)
                     {
-                        WriteFace(z==1, totalOffset + start1 + i, totalOffset + start1 + (i + 1)%numPointHere, totalOffset + start2 + 2*i+1);
-                        WriteFace(z==1, totalOffset + start1 + i, totalOffset + start2 + 2*i+1, totalOffset + start2 + 2*i);
-                        WriteFace(z==1, totalOffset + start1 + (i+1)%numPointHere, totalOffset + start2 + 2*i+1, totalOffset + start2 + 2*((i+1)%numPointHere));
+                        WriteFace(z!=1, totalOffset + start1 + i, totalOffset + start1 + (i + 1)%numPointHere, totalOffset + start2 + 2*i+1);
+                        WriteFace(z!=1, totalOffset + start1 + i, totalOffset + start2 + 2*i+1, totalOffset + start2 + 2*i);
+                        WriteFace(z!=1, totalOffset + start2 + 2*i+1, totalOffset + start1 + (i+1)%numPointHere, totalOffset + start2 + 2*((i+1)%numPointHere));
                     }
                 }
                 else
@@ -215,8 +215,8 @@ namespace geolytical
                     int start2 = GetLayerStart(layer+1);
                     for (int i = 0; i < numberOfRadialPointsAtLevel[layer]; i++)
                     {
-                        WriteFace(z==1, totalOffset + start1 + i, totalOffset + start1 + (i + 1)%numPointHere, totalOffset + start2 + i);
-                        WriteFace(z==1, totalOffset + start1 + (i + 1)%numPointHere, totalOffset + start2 + (i + 1)%numPointHere, totalOffset + start2 + i);
+                        WriteFace(z!=1, totalOffset + start1 + i, totalOffset + start1 + (i + 1)%numPointHere, totalOffset + start2 + i);
+                        WriteFace(z!=1, totalOffset + start1 + (i + 1)%numPointHere, totalOffset + start2 + (i + 1)%numPointHere, totalOffset + start2 + i);
                     }
                 }
             }
@@ -231,8 +231,8 @@ namespace geolytical
             int start2 = GetCylinderRingStart(i+1);
             for (int j = 0; j < nr; j++)
             {
-                WriteFace(false, start1 + j, start1 + (j + 1)%nr, start2 + j);
-                WriteFace(false, start1 + (j + 1)%nr, start2 + (j + 1)%nr, start2 + j);
+                WriteFace(true, start1 + j, start1 + (j + 1)%nr, start2 + j);
+                WriteFace(true, start1 + (j + 1)%nr, start2 + (j + 1)%nr, start2 + j);
             }
         }
     }

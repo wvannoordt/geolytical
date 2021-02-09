@@ -44,7 +44,7 @@ int main(void)
 
     Transformation3D nose(noseSphere);
     Transformation3D flareTransform(flare);
-    cyl.Deform(nose);
+    // cyl.Deform(nose);
     //cyl.Deform(flareTransform);
     cyl.OutputToVtk("output.vtk");
     return 0;
