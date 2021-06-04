@@ -154,7 +154,7 @@ namespace geolytical
     {
         enableAlignedCenters = val;
         ResetFaceCounter();
-        CountFaces()
+        CountFaces();
         CreateFaces();
     }
     
