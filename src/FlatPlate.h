@@ -14,7 +14,9 @@ namespace geolytical
             void CreatePoints(void);
             void CreateFaces(void);
             void GetLineArray(bool isX, bool upperFace, int level);
+            void SetEnableAlignedCenters(bool val);
         private:
+            bool enableAlignedCenters;
             int nx, nz;
             int* levelx;
             int* levelz;

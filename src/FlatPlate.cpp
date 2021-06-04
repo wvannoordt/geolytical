@@ -17,6 +17,7 @@ namespace geolytical
         nx = nx_in + 1;
         nz = nz_in + 1;
         numLevels = 0;
+        enableAlignedCenters = false;
         CountPoints();
         CountFaces();
         Allocate();
@@ -149,14 +150,12 @@ namespace geolytical
         }
     }
     
-    void printarr(std::string m, int* a, int n)
+    void FlatPlate::SetEnableAlignedCenters(bool val)
     {
-        std::cout << m;
-        for (int p = 0; p < n; p++)
-        {
-            std::cout << " " << a[p];
-        }
-        std::cout << std::endl;
+        enableAlignedCenters = val;
+        ResetFaceCounter();
+        CountFaces()
+        CreateFaces();
     }
     
     void FlatPlate::CreateFaces(void)
@@ -174,8 +173,6 @@ namespace geolytical
                 for (int level = 0; level < numLevels-1; level++)
                 {
                     GetLineArray((Xthenz==0), (upperLower==1), level);
-                    //printarr("high", upperLineArray, nUpper);
-                    //printarr("low", lowerLineArray, nLower);
                     if ((nUpper == 2) && (nLower == 2))
                     {
                         AddFace(upperLineArray[1], upperLineArray[0], lowerLineArray[0], (upperLower==1)==(Xthenz==1));
@@ -199,17 +196,45 @@ namespace geolytical
                 }
             }
         }
-        for (int iz = 0; iz < nz-1; iz++)
+        if (enableAlignedCenters)
         {
-            for (int ix = 0; ix < nx-1; ix++)
+            for (int iz = 0; iz < nz-1; iz++)
             {
-                int p1,p2,p3,p4;
-                p1 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+0);
-                p2 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+1);
-                p3 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+0);
-                p4 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+1);
-                AddFace(p2, p1, p3);
-                AddFace(p4, p2, p3);
+                int p1x, p2x, p3x;
+                p1x = levelPtStart[numLevels-1] + (iz+0)*(nx) + (0);
+                p2x = levelPtStart[numLevels-1] + (iz+0)*(nx) + (1);
+                p3x = levelPtStart[numLevels-1] + (iz+1)*(nx) + (0);
+                AddFace(p1x, p3x, p2x);
+                for (int ix = 0; ix < nx-2; ix++)
+                {
+                    int p1,p2,p3,p4;
+                    p1 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+1);
+                    p2 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+2);
+                    p3 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+0);
+                    p4 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+1);
+                    AddFace(p2, p1, p3);
+                    AddFace(p4, p2, p3);
+                }
+                p1x = levelPtStart[numLevels-1] + (iz+1)*(nx) + (nx-2);
+                p2x = levelPtStart[numLevels-1] + (iz+0)*(nx) + (nx-1);
+                p3x = levelPtStart[numLevels-1] + (iz+1)*(nx) + (nx-1);
+                AddFace(p1x, p3x, p2x);
+            }
+        }
+        else
+        {
+            for (int iz = 0; iz < nz-1; iz++)
+            {
+                for (int ix = 0; ix < nx-1; ix++)
+                {
+                    int p1,p2,p3,p4;
+                    p1 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+0);
+                    p2 = levelPtStart[numLevels-1] + (iz+0)*(nx) + (ix+1);
+                    p3 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+0);
+                    p4 = levelPtStart[numLevels-1] + (iz+1)*(nx) + (ix+1);
+                    AddFace(p2, p1, p3);
+                    AddFace(p4, p2, p3);
+                }
             }
         }
     }

@@ -57,6 +57,7 @@ namespace geolytical
             virtual void Deform(Transformation3D deformer);
             virtual void Deform(Transformation2D deformer);
             virtual void OutputPointsAsCSV(std::string filename);
+            void ResetFaceCounter(void) {fidx = 0;}
         protected:
             int numPoints;
             double* points;
