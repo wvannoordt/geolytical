@@ -10,6 +10,7 @@ namespace geolytical
         fidx=0;
         pidx=0;
         hasAnyScalars = false;
+        numTimesAddedFace = 0;
     }
     AnalyticalGeometry::~AnalyticalGeometry(void)
     {
@@ -78,6 +79,7 @@ namespace geolytical
         CHECKF;
         faces[fidx] = y;
         fidx++;
+        numTimesAddedFace++;
     }
     void AnalyticalGeometry::AddFace(int x, int y, int z)
     {
@@ -90,6 +92,7 @@ namespace geolytical
         CHECKF;
         faces[fidx] = z;
         fidx++;
+        numTimesAddedFace++;
     }
     void AnalyticalGeometry::AddFaceSwitch(int x, int y, int z)
     {
@@ -102,6 +105,7 @@ namespace geolytical
         CHECKF;
         faces[fidx] = z;
         fidx++;
+        numTimesAddedFace++;
     }
     void AnalyticalGeometry::AddFace(int x, int y, int z, bool switchValues)
     {
@@ -245,6 +249,34 @@ namespace geolytical
         variableObjects.insert({name, new SurfaceVar(name, this, array, numFaces, SurfaceVarType::Integer)});
         return *(variableObjects[name]);
     }
+    
+    void AnalyticalGeometry::BufferFaces(void)
+    {
+        while (fidx != 3*numFaces)
+        {
+            AddFace(0, 0, 2);
+        }
+    }
+    
+    void AnalyticalGeometry::RemapBoundingBox(bbox newBox)
+    {
+        double ax = (newBox.xmax-newBox.xmin)/(bounds.xmax-bounds.xmin);
+        double bx = newBox.xmin - bounds.xmin*ax;
+        double ay = (newBox.ymax-newBox.ymin)/(bounds.ymax-bounds.ymin);
+        double by = newBox.ymin - bounds.ymin*ay;
+        double az = (newBox.zmax-newBox.zmin)/(bounds.zmax-bounds.zmin);
+        double bz = newBox.zmin - bounds.zmin*az;
+        auto mapx = [=](double x) -> double {return ax*x + bx;};
+        auto mapy = [=](double y) -> double {return ay*y + by;};
+        auto mapz = [=](double z) -> double {return az*z + bz;};
+        for (size_t i = 0; i < numPoints; i++)
+        {
+            points[3*i]   = mapx(points[3*i]);
+            points[3*i+1] = mapy(points[3*i+1]);
+            points[3*i+2] = mapz(points[3*i+2]);
+        }
+        bounds = newBox;
+    }
 
     void AnalyticalGeometry::OutputToVtk(std::string filename)
     {
@@ -304,15 +336,53 @@ namespace geolytical
             deformer(points+3*i, points+3*i+1);
         }
     }
+    
+    void AnalyticalGeometry::OutputPointsAsCSV(std::string filename,  PointCloudFormat::PointCloudFormat format)
+    {
+        OutputPointsAsCSV(filename, numPoints, format);
+    }
+    
+    void AnalyticalGeometry::OutputPointsAsCSV(std::string filename, int numPointsToOutput)
+    {
+        OutputPointsAsCSV(filename, numPointsToOutput, PointCloudFormat::vtk);
+    }
+    
     void AnalyticalGeometry::OutputPointsAsCSV(std::string filename)
     {
-        FULLP;
-        std::ofstream myfile;
-        myfile.open(filename.c_str());
-        for (int i = 0; i < numPoints; i++)
+        OutputPointsAsCSV(filename, numPoints, PointCloudFormat::vtk);
+    }
+    
+    void AnalyticalGeometry::OutputPointsAsCSV(std::string filename, int numPointsToOutput, PointCloudFormat::PointCloudFormat format)
+    {
+        if (numPointsToOutput==numPoints)
         {
-            myfile << points[3*i] << ", " << points[3*i+1] << ", " << points[3*i+2] << std::endl;
+            FULLP;
         }
-        myfile.close();
+        switch (format)
+        {
+            case PointCloudFormat::csv:
+            {
+                std::ofstream myfile;
+                myfile.open(filename.c_str());
+                for (int i = 0; i < numPointsToOutput; i++)
+                {
+                    myfile << points[3*i] << ", " << points[3*i+1] << ", " << points[3*i+2] << std::endl;
+                }
+                myfile.close();
+                break;
+            }
+            
+            case PointCloudFormat::vtk:
+            {
+                std::ofstream myfile;
+                myfile.open(filename.c_str());
+                myfile << "# vtk DataFile Version 3.0\npoint cloud\nASCII\nDATASET POLYDATA\nPOINTS " << numPointsToOutput << " double\n";
+                for (int i = 0; i < numPointsToOutput; i++) myfile << points[3*i] << " " << points[3*i+1] << " " << points[3*i+2] << "\n";
+                myfile << "POINT_DATA " << numPointsToOutput << "\nSCALARS Node double\nLOOKUP_TABLE default\n";
+                for (int i = 0; i < numPointsToOutput; i++) myfile << (double)i << "\n";
+                myfile.close();
+                break;
+            }
+        }
     }
 }

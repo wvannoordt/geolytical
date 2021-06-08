@@ -28,6 +28,15 @@
 #define GEO_MAX(a,b) (((a)<(b))?(b):(a))
 namespace geolytical
 {
+    namespace PointCloudFormat
+    {
+        enum PointCloudFormat
+        {
+            csv,
+            vtk
+        };
+    }
+    
     class AnalyticalGeometry
     {
         public:
@@ -56,8 +65,14 @@ namespace geolytical
             virtual void OutputToVtk(std::string filename);
             virtual void Deform(Transformation3D deformer);
             virtual void Deform(Transformation2D deformer);
-            virtual void OutputPointsAsCSV(std::string filename);
+            void OutputPointsAsCSV(std::string filename,  int numPointsToOutput, PointCloudFormat::PointCloudFormat format);
+            void OutputPointsAsCSV(std::string filename,  PointCloudFormat::PointCloudFormat format);
+            void OutputPointsAsCSV(std::string filename,  int numPointsToOutput);
+            void OutputPointsAsCSV(std::string filename);
             void ResetFaceCounter(void) {fidx = 0;}
+            void BufferFaces(void);
+            void RemapBoundingBox(bbox newBox);
+            
         protected:
             int numPoints;
             double* points;
@@ -70,6 +85,7 @@ namespace geolytical
             bool doComponentId;
             bool hasAnyScalars;
             size_t fidx, pidx;
+            int numTimesAddedFace;
             std::map<std::string, double*> doubleScalars;
             std::map<std::string, int*> integerScalars;
             std::map<std::string, SurfaceVar*> variableObjects;

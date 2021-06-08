@@ -6,4 +6,6 @@
 #include "Cylinder.h"
 #include "Curve2D.h"
 #include "ExtrudedCurve2D.h"
+#include "Icosohedron.h"
+#include "Sphere.h"
 #endif

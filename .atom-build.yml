@@ -1,1 +1,1 @@
-cmd: 'TESTS=testing/cone make test'
+cmd: 'TESTS=testing/icoso make test'
