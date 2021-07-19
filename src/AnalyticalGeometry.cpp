@@ -3,7 +3,6 @@ namespace geolytical
 {
     AnalyticalGeometry::AnalyticalGeometry(void)
     {
-        dealloc = false;
         dimension = -999;
         numPoints=-1;
         numFaces=-1;
@@ -14,42 +13,54 @@ namespace geolytical
     }
     AnalyticalGeometry::~AnalyticalGeometry(void)
     {
-        if (dealloc)
+        if (points != NULL)
         {
             free(points);
+        }
+        if (faces != NULL)
+        {
             free(faces);
-            free(compID);
-            for (std::map<std::string, double*>::iterator it = doubleScalars.begin(); it!=doubleScalars.end(); it++)
-            {
-                free(it->second);
-            }
-            for (std::map<std::string, int*>::iterator it = integerScalars.begin(); it!=integerScalars.end(); it++)
-            {
-                free(it->second);
-            }
-            for (std::map<std::string, SurfaceVar*>::iterator it = variableObjects.begin(); it!=variableObjects.end(); it++)
-            {
-                delete it->second;
-            }
+        }
+        for (std::map<std::string, double*>::iterator it = doubleScalars.begin(); it!=doubleScalars.end(); it++)
+        {
+            free(it->second);
+        }
+        for (std::map<std::string, int*>::iterator it = integerScalars.begin(); it!=integerScalars.end(); it++)
+        {
+            free(it->second);
+        }
+        for (std::map<std::string, SurfaceVar*>::iterator it = variableObjects.begin(); it!=variableObjects.end(); it++)
+        {
+            delete it->second;
         }
     }
     bool AnalyticalGeometry::HasScalar(std::string name)
     {
         return (doubleScalars.find(name)!=doubleScalars.end()) || (integerScalars.find(name)!=integerScalars.end());
     }
+    
     void AnalyticalGeometry::Allocate(void)
     {
-        dealloc = true;
+        AllocatePoints();
+        AllocateFaces();
+    }
+    
+    void AnalyticalGeometry::AllocatePoints(void)
+    {
         if (dimension<0) {std::cout << "dimension has not been set!" << std::endl; abort();}
         if (numPoints<0) {std::cout << "numPoints has not been set!" << std::endl; abort();}
-        if (numFaces<0) {std::cout << "numFaces has not been set!" << std::endl; abort();}
         points = (double*)malloc(3*numPoints*sizeof(double));
+    }
+    
+    void AnalyticalGeometry::AllocateFaces(void)
+    {
+        if (dimension<0) {std::cout << "dimension has not been set!" << std::endl; abort();}
+        if (numFaces<0) {std::cout << "numFaces has not been set!" << std::endl; abort();}
         if (dimension==2) {faces = (int*)malloc(2*numFaces*sizeof(double));}
         else if (dimension==3) {faces = (int*)malloc(3*numFaces*sizeof(double));}
         else {std::cout << "dimension is neither 2 nor 3!" << std::endl; abort();}
-        compID = (int*)malloc(numFaces*sizeof(int));
-        for (int i = 0; i < numFaces; i++) compID[i] = 1;
     }
+    
     void AnalyticalGeometry::AddPoint(double x, double y)
     {
         CHECKP;
@@ -285,16 +296,16 @@ namespace geolytical
         if (!HasScalar("Components")) AddIntegerScalar("Components", 1);
         std::ofstream myfile;
         myfile.open(filename.c_str());
-        myfile << "# vtk DataFile Version 3.0" << std::endl;
-        myfile << "vtk output" << std::endl;
-        myfile << "ASCII" << std::endl;
-        myfile << "DATASET POLYDATA" << std::endl;
-        myfile << "POINTS " << numPoints << " double" << std::endl;
+        myfile << "# vtk DataFile Version 3.0" << "\n";
+        myfile << "vtk output" << "\n";
+        myfile << "ASCII" << "\n";
+        myfile << "DATASET POLYDATA" << "\n";
+        myfile << "POINTS " << numPoints << " double" << "\n";
         for (int i = 0; i < numPoints; i++)
         {
-            myfile << points[3*i] << " " << points[3*i+1] << " " << points[3*i+2] << std::endl;
+            myfile << points[3*i] << " " << points[3*i+1] << " " << points[3*i+2] << "\n";
         }
-        myfile << ((this->dimension==3)?("POLYGONS "):("LINES ")) << numFaces << " " << (1+dimension)*numFaces << std::endl;
+        myfile << ((this->dimension==3)?("POLYGONS "):("LINES ")) << numFaces << " " << (1+dimension)*numFaces << "\n";
         for (int i = 0; i < numFaces; i++)
         {
             myfile << dimension;
@@ -302,22 +313,22 @@ namespace geolytical
             {
                 myfile << " " << faces[i*dimension+d];
             }
-            myfile << std::endl;
+            myfile << "\n";
         }
         if (hasAnyScalars)
         {
-            myfile << "CELL_DATA " << numFaces << std::endl;
+            myfile << "CELL_DATA " << numFaces << "\n";
             for (std::map<std::string, double*>::iterator it = doubleScalars.begin(); it!=doubleScalars.end(); it++)
             {
-                myfile << "SCALARS " << it->first << " double" << std::endl;
-                myfile << "LOOKUP_TABLE default" << std::endl;
-                for (int i = 0; i < numFaces; i++) myfile << (it->second)[i] << std::endl;
+                myfile << "SCALARS " << it->first << " double" << "\n";
+                myfile << "LOOKUP_TABLE default" << "\n";
+                for (int i = 0; i < numFaces; i++) myfile << (it->second)[i] << "\n";
             }
             for (std::map<std::string, int*>::iterator it = integerScalars.begin(); it!=integerScalars.end(); it++)
             {
-                myfile << "SCALARS " << it->first << " int" << std::endl;
-                myfile << "LOOKUP_TABLE default" << std::endl;
-                for (int i = 0; i < numFaces; i++) myfile << (it->second)[i] << std::endl;
+                myfile << "SCALARS " << it->first << " int" << "\n";
+                myfile << "LOOKUP_TABLE default" << "\n";
+                for (int i = 0; i < numFaces; i++) myfile << (it->second)[i] << "\n";
             }
         }
         myfile.close();
@@ -366,7 +377,7 @@ namespace geolytical
                 myfile.open(filename.c_str());
                 for (int i = 0; i < numPointsToOutput; i++)
                 {
-                    myfile << points[3*i] << ", " << points[3*i+1] << ", " << points[3*i+2] << std::endl;
+                    myfile << points[3*i] << ", " << points[3*i+1] << ", " << points[3*i+2] << "\n";
                 }
                 myfile.close();
                 break;

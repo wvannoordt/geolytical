@@ -8,4 +8,5 @@
 #include "ExtrudedCurve2D.h"
 #include "Icosohedron.h"
 #include "Sphere.h"
+#include "VtkTriangulation.h"
 #endif

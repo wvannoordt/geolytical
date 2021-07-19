@@ -43,7 +43,9 @@ namespace geolytical
             AnalyticalGeometry(void);
             ~AnalyticalGeometry(void);
             bool HasScalar(std::string name);
-            virtual void Allocate(void);
+            void Allocate(void);
+            void AllocateFaces(void);
+            void AllocatePoints(void);
             virtual void AddPoint(double x, double y);
             virtual void AddPoint(double x, double y, double z);
             virtual void AddFace(int x, int y);
