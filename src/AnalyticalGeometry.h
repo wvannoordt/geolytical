@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <map>
 #include "SurfaceVar.h"
+#include "v3d.h"
 #ifndef BOUNDS_CHECK
 #define BOUNDS_CHECK 0
 #endif
@@ -74,6 +75,56 @@ namespace geolytical
             void ResetFaceCounter(void) {fidx = 0;}
             void BufferFaces(void);
             void RemapBoundingBox(bbox newBox);
+            
+            template <class callable> void Transform(const callable& func)
+            {
+                for (int i = 0; i < numPoints; i++)
+                {
+                    func(points+3*i+0, points+3*i+1, points+3*i+2);
+                }
+            }
+            
+            void Rotate(v3d<double> axis, v3d<double> point, double theta)
+            {
+                auto rotateTrans = [&](double* x, double* y, double* z) -> void
+                {
+                    v3d<double> xyz(*x, *y, *z);
+                    xyz -= point;
+                    xyz.Rotate(axis, theta);
+                    xyz += point;
+                    *x = xyz[0];
+                    *y = xyz[1];
+                    *z = xyz[2];
+                };
+                
+                this->Transform(rotateTrans);
+            }
+            
+            AnalyticalGeometry& operator += (const AnalyticalGeometry& rhs)
+            {
+                double* newPoints = (double*)malloc(3*sizeof(double)*(this->numPoints + rhs.numPoints));
+                int* newFaces = (int*)malloc(dimension*sizeof(int)*(this->numFaces + rhs.numFaces));
+                
+                for (int i = 0; i < dimension*this->numFaces; i++) newFaces[i] = this->faces[i];
+                for (int i = 0; i < dimension*rhs.numFaces; i++) newFaces[i+dimension*this->numFaces] = this->numPoints+rhs.faces[i];
+                
+                for (int i = 0; i < 3*this->numPoints; i++) newPoints[i] = this->points[i];
+                for (int i = 0; i < 3*rhs.numPoints; i++) newPoints[i+3*this->numPoints] = rhs.points[i];
+                
+                free(this->faces);
+                free(this->points);
+                
+                this->faces = newFaces;
+                this->points = newPoints;
+                
+                this->numFaces += rhs.numFaces;
+                this->numPoints += rhs.numPoints;
+                
+                pidx = 3*numPoints;
+                fidx = dimension*numFaces;
+                
+                return *this;
+            }
             
         protected:
             int numPoints;

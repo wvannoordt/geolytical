@@ -56,8 +56,8 @@ namespace geolytical
     {
         if (dimension<0) {std::cout << "dimension has not been set!" << std::endl; abort();}
         if (numFaces<0) {std::cout << "numFaces has not been set!" << std::endl; abort();}
-        if (dimension==2) {faces = (int*)malloc(2*numFaces*sizeof(double));}
-        else if (dimension==3) {faces = (int*)malloc(3*numFaces*sizeof(double));}
+        if (dimension==2) {faces = (int*)malloc(2*numFaces*sizeof(int));}
+        else if (dimension==3) {faces = (int*)malloc(3*numFaces*sizeof(int));}
         else {std::cout << "dimension is neither 2 nor 3!" << std::endl; abort();}
     }
     
