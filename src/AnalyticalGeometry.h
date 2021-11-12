@@ -74,6 +74,7 @@ namespace geolytical
             void ResetFaceCounter(void) {fidx = 0;}
             void BufferFaces(void);
             void RemapBoundingBox(bbox newBox);
+            virtual void PermuteCoordinates(int i1, int i2, int i3);
             
         protected:
             int numPoints;

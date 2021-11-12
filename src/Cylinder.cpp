@@ -166,7 +166,6 @@ namespace geolytical
             dealloc = false;
             delete [] numberOfRadialPointsAtLevel;
             delete [] isIrregularLayer;
-            free(points);
         }
     }
     
