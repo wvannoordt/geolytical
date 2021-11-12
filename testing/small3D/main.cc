@@ -1,15 +1,7 @@
 #include <iostream>
 #include "geolytical.h"
 #include <cmath>
-
-void defineBump(double* x, double* y)
-{
-    double x_prev = *x;
-    if (x_prev*x_prev < 0.04)
-    {
-        *y = 0.05;
-    }
-}
+using geolytical::v3d;
 
 int main(void)
 {
@@ -18,13 +10,27 @@ int main(void)
     bounds.xmax = 1.0;
     bounds.ymin = -0.1;
     bounds.ymax = 0.0;
+    bounds.zmin = -1.0;
+    bounds.zmax = 1.0;
 
-    //Creates a box defined by bounds withh 100 points on the top (y+) face
-    geolytical::FlatLine plate(100, bounds);
-
-
-    Transformation2D bump(defineBump);
-    plate.Deform(bump);
-    plate.OutputToVtk("output.vtk");
+    int nx = 100;
+    geolytical::FlatPlate top(nx, nx, bounds);
+    geolytical::FlatPlate bottom(nx, nx, bounds);
+    
+    v3d<> axis(0, 0, 1);
+    v3d<> point(0.5*(bounds.xmin+bounds.xmax), bounds.ymax, 0.5*(bounds.zmin+bounds.zmax));
+    const double pi = 3.14159265359;
+    double theta = pi;
+    
+    top.Rotate(axis, point, theta);
+    
+    double channelHeight = 1.0;
+    
+    auto translate = [&](double* x, double* y, double* z) -> void {*y += channelHeight;};
+    top.Transform(translate);
+    
+    bottom += top;
+    
+    bottom.OutputToVtk("output.vtk");
     return 0;
 }

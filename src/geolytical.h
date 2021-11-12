@@ -9,4 +9,5 @@
 #include "Icosohedron.h"
 #include "Sphere.h"
 #include "VtkTriangulation.h"
+#include "v3d.h"
 #endif

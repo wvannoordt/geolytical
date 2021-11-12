@@ -1,6 +1,4 @@
-#ifndef GEO_V3D_H
-#define GEO_V3D_H
-#endif
+#pragma once
 
 namespace geolytical
 {
