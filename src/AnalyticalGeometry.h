@@ -75,6 +75,8 @@ namespace geolytical
             void ResetFaceCounter(void) {fidx = 0;}
             void BufferFaces(void);
             void RemapBoundingBox(bbox newBox);
+            double* GetPointBuffer(void) {return points;}
+            int GetNumPoints(void) {return numPoints;}
             
             template <class callable> void Transform(const callable& func)
             {
