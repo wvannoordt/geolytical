@@ -55,6 +55,7 @@ namespace geolytical
             }
         }
         int numPointAtInner = nr_in_rad / layersonFace;
+        dealloc = true;
         isIrregularLayer = new bool[layersonFace-1];
         for (int i = 0; i < layersonFace-1; i++)
         {
