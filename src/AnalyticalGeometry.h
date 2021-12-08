@@ -10,6 +10,7 @@
 #include <map>
 #include "SurfaceVar.h"
 #include "v3d.h"
+#include <type_traits>
 #ifndef BOUNDS_CHECK
 #define BOUNDS_CHECK 0
 #endif
@@ -82,6 +83,30 @@ namespace geolytical
                 for (int i = 0; i < numPoints; i++)
                 {
                     func(points+3*i+0, points+3*i+1, points+3*i+2);
+                }
+            }
+            
+            template <class callable> void SetScalarValues(std::string variable, const callable& func)
+            {
+                
+                SurfaceVar* var = NULL;
+                static_assert(
+                    (typeid(decltype(func(0,0,0)))==typeid(int)) ||
+                    (typeid(decltype(func(0,0,0)))==typeid(double))
+                    , "Callable return type must be int or double!");
+                bool isdouble = !std::is_integral<decltype(func(0,0,0))>::value;
+                
+                if (!this->HasScalar(variable))
+                {
+                    if (isdouble) this->AddDoubleScalar(variable);
+                    else this->AddIntegerScalar(variable);
+                }
+                auto& v = this->GetVariable(variable);
+                for (size_t i = 0; i < this->GetNumFaces(); i++)
+                {
+                    auto c = this->GetCentroid(i);
+                    auto val = callable(c[0], c[1], c[2]);
+                    v.SetElem(i, val);
                 }
             }
             
