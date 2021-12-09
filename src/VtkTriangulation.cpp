@@ -78,15 +78,19 @@ namespace geolytical
         
         if (!next(line))
         {
-            errMessage = "Cannot find info about \"POLYGONS\"";
+            errMessage = "Cannot find info about \"POLYGONS/LINES\"";
             return false;
         }
         errMessage = "Error parsing line \"" + line + "\"";
         std::istringstream faceBuf(line);
-        int dummy;
+        int dummy, numEntry;
         faceBuf >> junk;
         faceBuf >> numFaces;
-        faceBuf >> dummy;
+        faceBuf >> numEntry;
+        if (numFaces*4==numEntry) {dimension=3;}
+        else if (numFaces*3==numEntry) {dimension=2;}
+        else {errMessage = "Cannot detect valid dimension...";
+        return false;}
         if (faceBuf.fail()) return false;
         AllocateFaces();
         int ct, n1, n2, n3;
@@ -102,14 +106,15 @@ namespace geolytical
             faceCtBuf >> ct;
             faceCtBuf >> n1;
             faceCtBuf >> n2;
-            faceCtBuf >> n3;
-            if (ct != 3)
+            if (ct==3) faceCtBuf >> n3;
+            if (ct != 3 && ct != 2)
             {
-                errMessage = "Only triangular faces are supported!";
+                errMessage = "Only triangular/linear faces are supported!";
                 return false;
             }
             if (faceCtBuf.fail()) return false;
-            AddFace(n1, n2, n3);
+            if (ct==3) AddFace(n1, n2, n3);
+            else AddFace(n1, n2);
         }
         
         while (line.find("CELL_DATA")==std::string::npos && next(line)){}

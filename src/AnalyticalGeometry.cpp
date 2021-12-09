@@ -129,6 +129,10 @@ namespace geolytical
             AddFace(x, y, z);
         }
     }
+    SurfaceVar& AnalyticalGeometry::GetVariable(std::string name)
+    {
+        return *variableObjects[name];
+    }
     void AnalyticalGeometry::ErrIfOBPoint(void)
     {
         if (pidx>=3*numPoints) {std::cout << "point index out of bounds!" << std::endl; abort();}
