@@ -34,18 +34,19 @@ void flare(double* x, double* y, double *z)
 int main(void)
 {
 	bbox bounds;
-    bounds.xmin = 0;
-    bounds.xmax = XMAX;
-    bounds.ymin = -NOSERADIUS;
-    bounds.ymax =  NOSERADIUS;
-    bounds.zmin = -NOSERADIUS;
-    bounds.zmax =  NOSERADIUS;
+    bounds.xmin = -1.0;
+    bounds.xmax = 1.0;
+    bounds.ymin = -0.2;
+    bounds.ymax = 0.2;
+    bounds.zmin = -0.2;
+    bounds.zmax = 0.2;
     geolytical::Cylinder cyl(120, 128, 46, bounds);
 
-    Transformation3D nose(noseSphere);
-    Transformation3D flareTransform(flare);
+    // Transformation3D nose(noseSphere);
+    // Transformation3D flareTransform(flare);
     // cyl.Deform(nose);
     //cyl.Deform(flareTransform);
+    cyl.PermuteCoordinates(2, 1, 0);
     cyl.OutputToVtk("output.vtk");
     return 0;
 }

@@ -337,6 +337,21 @@ namespace geolytical
         }
         myfile.close();
     }
+    
+    void AnalyticalGeometry::PermuteCoordinates(int i1, int i2, int i3)
+    {
+        double xyz[3] = {0.0, 0.0, 0.0};
+        for (int i = 0; i < numPoints; i++)
+        {
+            xyz[0] = *(points+3*i+i1);
+            xyz[1] = *(points+3*i+i2);
+            xyz[2] = *(points+3*i+i3);
+            *(points+3*i+0) = xyz[0];
+            *(points+3*i+1) = xyz[1];
+            *(points+3*i+2) = xyz[2];
+        }
+    }
+    
     void AnalyticalGeometry::Deform(Transformation3D deformer)
     {
         for (int i = 0; i < numPoints; i++)

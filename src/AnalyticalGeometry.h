@@ -10,6 +10,7 @@
 #include <map>
 #include "SurfaceVar.h"
 #include "v3d.h"
+#include <type_traits>
 #ifndef BOUNDS_CHECK
 #define BOUNDS_CHECK 0
 #endif
@@ -76,6 +77,7 @@ namespace geolytical
             void ResetFaceCounter(void) {fidx = 0;}
             void BufferFaces(void);
             void RemapBoundingBox(bbox newBox);
+            virtual void PermuteCoordinates(int i1, int i2, int i3);
             double* GetPointBuffer(void) {return points;}
             int GetNumPoints(void) {return numPoints;}
             int GetNumFaces(void) {return numFaces;}
@@ -90,6 +92,36 @@ namespace geolytical
                 for (int i = 0; i < numPoints; i++)
                 {
                     func(points+3*i+0, points+3*i+1, points+3*i+2);
+                }
+            }
+            
+            template <class callable> void SetScalarValues(std::string variable, const callable& func)
+            {
+                
+                SurfaceVar* var = NULL;
+                // static_assert(
+                //     (typeid(decltype(func(0,0,0)))==typeid(int)) ||
+                //     (typeid(decltype(func(0,0,0)))==typeid(double))
+                //     , "Callable return type must be int or double!");
+                bool isdouble = !std::is_integral<decltype(func(0,0,0))>::value;
+                
+                if (!this->HasScalar(variable))
+                {
+                    if (isdouble) this->AddDoubleScalar(variable, 0.0);
+                    else this->AddIntegerScalar(variable, 0);
+                }
+                auto& v = *this->variableObjects[variable];
+                if (isdouble != (v.GetType()==SurfaceVarType::Double))
+                {
+                    std::cout << "Setting incompatible types in SetScalarValues!" << std::endl;
+                    abort();
+                }
+                for (size_t i = 0; i < this->numFaces; i++)
+                {
+                    v3d<double> c;
+                    this->GetCentroid(i, &c[0], &c[1], &c[2]);
+                    auto val = func(c[0], c[1], c[2]);
+                    v.SetElem(i, val);
                 }
             }
             
