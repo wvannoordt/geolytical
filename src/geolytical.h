@@ -10,4 +10,5 @@
 #include "Sphere.h"
 #include "VtkTriangulation.h"
 #include "v3d.h"
+#include "Circle.h"
 #endif

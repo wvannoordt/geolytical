@@ -67,6 +67,7 @@ namespace geolytical
             virtual SurfaceVar& AddIntegerScalar(std::string name, int (*func)(int));
             virtual SurfaceVar& AddIntegerScalar(std::string name, int (*func)(double, double, double));
             virtual SurfaceVar& GetScalar(std::string name);
+            virtual SurfaceVar& GetVariable(std::string name);
             virtual void OutputToVtk(std::string filename);
             virtual void Deform(Transformation3D deformer);
             virtual void Deform(Transformation2D deformer);
@@ -80,7 +81,13 @@ namespace geolytical
             virtual void PermuteCoordinates(int i1, int i2, int i3);
             double* GetPointBuffer(void) {return points;}
             int GetNumPoints(void) {return numPoints;}
-            
+            int GetNumFaces(void) {return numFaces;}
+            v3d<double> GetCentroid(int faceIdx)
+            {
+                v3d<double> output(0.0,0.0,0.0);
+                GetCentroid(faceIdx, &output[0], &output[1], &output[2]);
+                return output;
+            }
             template <class callable> void Transform(const callable& func)
             {
                 for (int i = 0; i < numPoints; i++)
