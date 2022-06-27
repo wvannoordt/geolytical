@@ -66,6 +66,7 @@ namespace geolytical
             virtual SurfaceVar& AddIntegerScalar(std::string name, int value);
             virtual SurfaceVar& AddIntegerScalar(std::string name, int (*func)(int));
             virtual SurfaceVar& AddIntegerScalar(std::string name, int (*func)(double, double, double));
+            virtual SurfaceVar& GetScalar(std::string name);
             virtual void OutputToVtk(std::string filename);
             virtual void Deform(Transformation3D deformer);
             virtual void Deform(Transformation2D deformer);
@@ -92,10 +93,6 @@ namespace geolytical
             {
                 
                 SurfaceVar* var = NULL;
-                // static_assert(
-                //     (typeid(decltype(func(0,0,0)))==typeid(int)) ||
-                //     (typeid(decltype(func(0,0,0)))==typeid(double))
-                //     , "Callable return type must be int or double!");
                 bool isdouble = !std::is_integral<decltype(func(0,0,0))>::value;
                 
                 if (!this->HasScalar(variable))

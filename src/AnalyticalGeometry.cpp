@@ -34,6 +34,15 @@ namespace geolytical
             delete it->second;
         }
     }
+    SurfaceVar& AnalyticalGeometry::GetScalar(std::string name)
+    {
+        if (!HasScalar(name))
+        {
+            std::cout << "Requested scalar \"" << name << "\" not found!" << std::endl;
+            abort();
+        }
+        return *variableObjects[name];
+    }
     bool AnalyticalGeometry::HasScalar(std::string name)
     {
         return (doubleScalars.find(name)!=doubleScalars.end()) || (integerScalars.find(name)!=integerScalars.end());

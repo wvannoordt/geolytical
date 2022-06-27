@@ -30,6 +30,7 @@ namespace geolytical
                 p[i] = val;
             }
             void* Arr(void) {return array;}
+            size_t GetSize(void) {return num;}
         private:
             void Build(std::string name_in, AnalyticalGeometry* domain_in, void* array_in, size_t num_in, SurfaceVarType::SurfaceVarType type_in);
             std::string name;
